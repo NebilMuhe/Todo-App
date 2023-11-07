@@ -1,23 +1,40 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import Todolist from "./componets/Todolist";
-import { MdLibraryAdd } from "react-icons/md";
 import { IoAddSharp } from "react-icons/io5";
 
 function App() {
   const [todos, setTodos] = useState([]);
   const [value, setValue] = useState("");
+  const [current, setCurrent] = useState(1);
+  const [pages, setPages] = useState([]);
+
+  const pageSize = 6;
+
+  let startIndex = (current - 1) * pageSize;
+  let endIndex = startIndex + pageSize;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setTodos([...todos, value]);
     setValue("");
+    console.log(todos);
   };
 
-  const handleDelete = (index) => {
-    const todo = todos.filter((todo) => todo !== todos[index]);
-    setTodos(todo);
+  const handleNext = () => {
+    let x = current + 1;
+    setCurrent(x);
   };
+
+  const handlePrevious = () => {
+    let x = current - 1;
+    setCurrent(x);
+  };
+
+  useEffect(() => {
+    let todo = todos.slice(startIndex, endIndex);
+    setPages(todo);
+  }, [startIndex, todos]);
 
   return (
     <div
@@ -55,14 +72,26 @@ function App() {
             </h1>
           </div>
           <div className="flex flex-col">
-            {todos.map((todo, index) => (
+            {pages.map((todo, index) => (
               <Todolist
                 key={index}
                 todo={todo}
                 index={index}
-                handleDelete={() => handleDelete(index)}
+                // handleDelete={() => handleDelete(index)}
+                todos={todos}
+                setTodos={setTodos}
               />
             ))}
+          </div>
+          <div className="flex justify-between px-3 mt-5">
+            {current !== 1 && (
+              <button onClick={handlePrevious}>Previous</button>
+            )}
+            {todos.length > pageSize && (
+              <button onClick={handleNext} className="flex justify-end">
+                Next
+              </button>
+            )}
           </div>
         </div>
       </div>
